@@ -36,15 +36,15 @@ if os.path.exists('processed_files.csv'):
         for row in csv_reader:
             processed_info[row[0]] = set(row[1:])
 
-# Load valid usernames from an Excel file 'valid_usernames.xlsx'
+# Load valid usernames from an Excel file 'batchuploader_authorized_users.xlsx'
 valid_usernames = set()  # Define the set here
 
 # Load valid version number from an Excel file 'valid_version.xlsx'
 valid_version = set()  # Define the set here
 
-# Check if the file 'valid_usernames.xlsx' exists
-if os.path.exists('valid_usernames.xlsx'):
-    workbook = openpyxl.load_workbook('valid_usernames.xlsx', data_only=True, read_only=True)
+# Check if the file 'batchuploader_authorized_users.xlsx' exists
+if os.path.exists('batchuploader_authorized_users.xlsx'):
+    workbook = openpyxl.load_workbook('batchuploader_authorized_users.xlsx', data_only=True, read_only=True)
     sheet = workbook.active
 
     for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=1, values_only=True):
@@ -81,6 +81,15 @@ def process_erp_tab(workbook, file_path, sheet_name, output_directory):
     version = str(sheet['C6'].value).rstrip('.0')  # Convert to string and remove trailing '.0'
     username = sheet['C8'].value.strip()
 
+    # Extract workbook's name from file_path without the extension
+    workbook_name = os.path.splitext(os.path.basename(file_path))[0]
+
+    # Define the output path
+    output_file_path = f"/var/data/fin_ifrs/erp/inbound/processing/gl_bu/{workbook_name}_username.txt"
+    # Write username to the txt file
+    with open(output_file_path, 'w') as file:
+        file.write(username)
+        
     error_messages = []
 
     # Check Journal Name
@@ -125,6 +134,7 @@ def process_erp_tab(workbook, file_path, sheet_name, output_directory):
 
     # Construct CSV paths using the defined variables
     details_csv_path = os.path.join(output_directory, generate_unique_csv_filename(file_path, f"{sheet_name}_combined", "csv"))
+    header_csv_path = os.path.join(output_directory, generate_unique_csv_filename(file_path, f"{sheet_name}_hdr", "csv"))
 
     # Extract Header Table data (columns B and C, rows 6-14)
     header_data_B = []
