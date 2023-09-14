@@ -88,6 +88,7 @@ def process_erp_tab(workbook, file_path, sheet_name, output_directory):
     output_file_path = f"/var/data/fin_ifrs/erp/inbound/processing/gl_bu/{workbook_name}_username.txt"
     # Write username to the txt file
     with open(output_file_path, 'w') as file:
+        os.chmod(output_file_path, 0o777)
         file.write(username)
         
     error_messages = []
